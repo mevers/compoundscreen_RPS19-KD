@@ -55,11 +55,11 @@ The following plot shows the distribution of (normalised) p53 expression and cel
 
 Alternatively, we show the same data in an animation, that interpolates between the measurements at different doses.
 
-<img src="01_plots/animation.gif" width="600">
+<img src="01_plots/animation.gif" width="800">
 
 In both plots, the compound Flavopiridol in highlighted in red, the compound Dinaciclib in blue (the library contains two Dinaciclib compounds, presumably from two different companies). Also highlighted in yellow are all compounds that are listed to act on CDK.
 
-The following table shows the top 20 compounds (ranked by decreasing Mahalanobis distances) leading to an increase in p53 expression and decrease in cell count.
+The following table shows the top 20 compounds at a dose of 1.04µm (ranked by decreasing Mahalanobis distances) leading to an increase in p53 expression and decrease in cell count.
 
 | Rank | name       | Drug.Name                       | Main.Target                                               | average.cell.count | average.p53.intensity | Mahalanobis_dist |
 |------|------------|---------------------------------|-----------------------------------------------------------|--------------------|-----------------------|------------------|
@@ -84,7 +84,7 @@ The following table shows the top 20 compounds (ranked by decreasing Mahalanobis
 | 19   | SN00737604 | Cladribine                      | inhibits_the_enzyme_adenosine_deaminase                   | -0.152             | 1.007                 | 14.341           |
 | 20   | SN00750333 | Cladribine                      | Antimetabolites                                           | -0.044             | 1.029                 | 13.396           |
 
-Full results including ranking tables for every quadrant (and based on both normalisation methods) are given in folder `02_tables` and subfolders therein.
+Full results with ranking tables for every quadrant (and based on both normalisation methods) are given in subfolder of `02_tables`.
 
 
 ## References
