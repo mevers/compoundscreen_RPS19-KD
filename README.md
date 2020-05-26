@@ -46,8 +46,33 @@ Following is a description of the individual R scripts that are part of this rep
 
 `calc_Mahalanobis_dist.R`: Calculate Mahalanobis distances for every compound per quadrant per dose. Rank compounds according to the Mahalanobis distance, from largest to smallest. Generate a plot of the distribution of Mahalanobis distances for data normalised to the DMSO-treated RPS19-KD. Store results in CSV tables, one for every quadrant.
 
+`calc_combined_metric.R`: For every compound in every quadrant, we combine ranks *r* at different doses by calculating the product rank metric
+
+<center><img src="product_rank.png" width="500"></center>
+
+The product rank metric is just the geometric mean of the ranks, averaged across all 4 doses.
+
+ We need to be careful here, since we can have the following situation: Compound A may have rank *p* in the `p53_up.cellcount_down` quadrant at dose 1.04µm; at all other doses the same compound A does not lead to increased p53 expression and reduced cell count, i.e. compound A will not be located in quadrant `p53_up.cellcount_down`. If a compound A has no rank in a particular quadrant (because it is not located in that quadrant), we assign the lowest rank (of that quadrant) to that compound.
+
+**Example:**  
+At dose 1.04µm compound A ranks first in quadrant `p53_up.cellcount_down`; at all other doses, compound A does not lead to an increase of p53 expression and cell count reduction. In comparison, a second compound B has a rank of 2 at all doses in the same quadrant `p53_up.cellcount_down`. Our product rank metric should reflect compound B having a *more consistent effect across all doses* in terms of increasing p53 expression and reducing the cell count than compound A.
+
+Without assigning the lowest rank to the compound at the doses where the compound was unranked, we would rank compound A higher than compound B, i.e.
+
+1. Compound A: Product rank metric = 1
+2. Compound B: Product rank metric = (2 * 2 * 2 * 2)^(1/4) = 2
+
+In contrast, by assigning the lowest rank to the compound at the doses where the compound was unranked, we rank B higher than A (assuming here that the lowest rank in that particular quadrant is 100)
+
+1. Compound A: Product rank metric = sqrt(1 * 100 * 100 * 100) = 31.6
+2. Compound B: Product rank metric = (2 * 2 * 2 * 2)^(1/4) = 2
+
+In other words, the highest "rank product metric"-ranked compounds are those with "extreme" *and* most consistent (across doses) p53 expressions and cell counts.
+
 
 ## Results
+
+### p53 expression vs. cell count at 1.04µm
 
 The following plot shows the distribution of (normalised) p53 expression and cell count measurements for all compounds at different doses, based on data using the two different normalisation strategies.
 
@@ -57,9 +82,9 @@ Alternatively, we show the same data in an animation, that interpolates between 
 
 <img src="01_plots/animation.gif" width="800">
 
-In both plots, the compound Flavopiridol in highlighted in red, the compound Dinaciclib in blue (the library contains two Dinaciclib compounds, presumably from two different companies). Also highlighted in yellow are all compounds that are listed to act on CDK.
+In both plots, the compound Flavopiridol in highlighted in blue, the compound Dinaciclib in red (the library contains two Dinaciclib compounds, presumably from two different companies). Also highlighted in yellow are all compounds that are listed to act on CDK.
 
-The following table shows the top 20 compounds at a dose of 1.04µm (ranked by decreasing Mahalanobis distances) leading to an increase in p53 expression and decrease in cell count.
+The following [table shows the top 20 compounds at a dose of 1.04µm](./02_tables/p53_up.cellcount_down_1.04um.csv) (ranked by decreasing Mahalanobis distances) leading to an increase in p53 expression and decrease in cell count.
 
 | Rank | name       | Drug.Name                       | Main.Target                                               | average.cell.count | average.p53.intensity | Mahalanobis_dist |
 |------|------------|---------------------------------|-----------------------------------------------------------|--------------------|-----------------------|------------------|
@@ -87,6 +112,17 @@ The following table shows the top 20 compounds at a dose of 1.04µm (ranked by d
 Full results with ranking tables for every quadrant (and based on both normalisation methods) are given in subfolder of `02_tables`.
 
 
+### Combining results from measurements at different doses
+
+**For all subsequent results we only consider data normalised to the DMSO-treated RPSK-19 KD.** This is justified because we are interested in characterising the effect of different compounds in the same system (i.e. the RPS19-KD cells). Normalising data to the non-targeting control would charaterise the combination effect of knocking down RPS19 *and* treating cells with a specific compound at a fixed dose.
+
+We show the distribution of (DMSO-treated RPS19-KD-normalised) p53 expression and cell count measurements for all compounds at different doses, and highlight the top 30 compounds with the lowest product rank metric. We classify compounds according to their mode of action, and label the two only compounds selectively inhibiting Pol-II transcription (but not Pol-I): Flavopiridol (with a final rank of 26) and Dinaciclib (with a final rank of 25).
+
+<img src="./01_plots/p53_intensity_vs_cell_count_final_ranking_highlight.png" width="800">
+
+The full ranking of all compounds including their product rank metric is given in table [`02_tables/final_ranking/final_p53_up.cellcount_down.csv`](./02_tables/final_ranking/final_p53_up.cellcount_down.csv).
+
+
 ## References
 
 - [Bottom to top explanation of the Mahalanobis distance?](https://stats.stackexchange.com/questions/62092/bottom-to-top-explanation-of-the-mahalanobis-distance)
@@ -112,9 +148,10 @@ sessionInfo()
 #[1] stats     graphics  grDevices utils     datasets  methods   base
 #
 #other attached packages:
-# [1] tweenr_1.0.1    animation_2.6   ggtext_0.1.0    forcats_0.5.0
-# [5] stringr_1.4.0   dplyr_0.8.4     purrr_0.3.3     readr_1.3.1
-# [9] tidyr_1.0.2     tibble_2.1.3    ggplot2_3.3.0   tidyverse_1.3.0
+# [1] ggrepel_0.8.1   tweenr_1.0.1    animation_2.6   ggtext_0.1.0
+# [5] forcats_0.5.0   stringr_1.4.0   dplyr_0.8.4     purrr_0.3.3
+# [9] readr_1.3.1     tidyr_1.0.2     tibble_2.1.3    ggplot2_3.3.0
+#[13] tidyverse_1.3.0
 #
 #loaded via a namespace (and not attached):
 # [1] Rcpp_1.0.3       cellranger_1.1.0 pillar_1.4.3     compiler_3.6.1
